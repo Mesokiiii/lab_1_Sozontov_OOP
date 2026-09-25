@@ -1,0 +1,941 @@
+<UserControl x:Class="WpfLabApp.Views.ControlsPart2View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:models="clr-namespace:WpfLabApp.Models"
+             mc:Ignorable="d" 
+             d:DesignHeight="2200" d:DesignWidth="950">
+
+    <UserControl.Resources>
+        <!-- Modern Expander Template (согласованный с ControlsPart1View) -->
+        <Style x:Key="SectionExpanderStyle" TargetType="Expander">
+            <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
+                            <DockPanel>
+                                <ToggleButton x:Name="HeaderSite"
+                                              DockPanel.Dock="Top"
+                                              IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              Cursor="Hand"
+                                              Focusable="False">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border x:Name="HeaderBorder" Background="Transparent" Padding="16,14" CornerRadius="8,8,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ContentPresenter Grid.Column="0" ContentSource="Content" VerticalAlignment="Center"/>
+                                                    <Border Grid.Column="1" x:Name="ArrowBox" Background="#334155" Width="28" Height="28" CornerRadius="14" Margin="12,0,0,0">
+                                                        <Path x:Name="Arrow" Data="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" 
+                                                              Fill="{StaticResource TextSecondaryBrush}" Stretch="Uniform" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                              RenderTransformOrigin="0.5,0.5">
+                                                            <Path.RenderTransform>
+                                                                <RotateTransform Angle="0"/>
+                                                            </Path.RenderTransform>
+                                                        </Path>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="HeaderBorder" Property="Background" Value="#24334A"/>
+                                                    <Setter TargetName="Arrow" Property="Fill" Value="White"/>
+                                                </Trigger>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter TargetName="Arrow" Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <RotateTransform Angle="180"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter TargetName="ArrowBox" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                                    <Setter TargetName="Arrow" Property="Fill" Value="White"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                    <ContentPresenter Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}"/>
+                                </ToggleButton>
+                                <Border x:Name="Separator" DockPanel.Dock="Top" Height="1" Background="{StaticResource BorderBrushDefault}" Visibility="Collapsed"/>
+                                <ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" ContentSource="Content" Margin="{TemplateBinding Padding}" Visibility="Collapsed"/>
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Separator" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Стилизация DataGrid -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="MinHeight" Value="42"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2A384F"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#1E3A8A"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Шаблон для TreeView узлов с контекстным меню -->
+        <HierarchicalDataTemplate DataType="{x:Type models:ProjectTreeNode}" ItemsSource="{Binding Children}">
+            <Border CornerRadius="6" Padding="6,4" Margin="2,1" Background="Transparent">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Иконка в бейдже с подсветкой -->
+                    <Border Grid.Column="0" CornerRadius="4" Width="26" Height="26" Margin="0,0,10,0"
+                            Background="#0F172A" BorderBrush="{Binding BadgeColor}" BorderThickness="1"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Icon}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- Имя узла и описание -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                        <TextBlock Text="{Binding Info}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,1,0,0"/>
+                    </StackPanel>
+
+                    <!-- Тип элемента (бейдж справа) -->
+                    <Border Grid.Column="2" CornerRadius="4" Padding="6,2" Margin="14,0,4,0"
+                            Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding NodeType}" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </HierarchicalDataTemplate>
+
+        <Style TargetType="TreeViewItem">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="#60A5FA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Современный плоский стиль для ProgressBar -->
+        <Style x:Key="ModernFlatProgressBar" TargetType="ProgressBar">
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" ClipToBounds="True">
+                            <Grid x:Name="PART_Track">
+                                <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" 
+                                        HorizontalAlignment="Left" CornerRadius="7"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Стилизованный анимированный индикатор (IsIndeterminate) с плавным перемещением по всей ширине -->
+        <Style x:Key="ModernIndeterminateProgressBar" TargetType="ProgressBar">
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" ClipToBounds="True">
+                            <Grid>
+                                <Border x:Name="IndeterminateBar" HorizontalAlignment="Left" Width="200" CornerRadius="7" 
+                                        Background="{TemplateBinding Foreground}">
+                                    <Border.RenderTransform>
+                                        <TranslateTransform x:Name="BarTranslate" X="-250"/>
+                                    </Border.RenderTransform>
+                                </Border>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsIndeterminate" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard Name="IndeterminateStoryboard">
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetName="BarTranslate"
+                                                             Storyboard.TargetProperty="X"
+                                                             From="-250" To="1400" Duration="0:0:2.0"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <StopStoryboard BeginStoryboardName="IndeterminateStoryboard"/>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Меню, ContextMenu и MenuItem темной темы -->
+        <Style TargetType="Menu">
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4,2"/>
+        </Style>
+
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="HasDropShadow" Value="True"/>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="Separator">
+            <Setter Property="Background" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="Margin" Value="4,4"/>
+            <Setter Property="Height" Value="1"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Margin="0,10,0,0">
+
+        <!-- Панель статуса и интерактивного протоколирования действий -->
+        <Border Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#1E1B4B" CornerRadius="6" Padding="6,4" Margin="0,0,10,0">
+                        <TextBlock Text="⚡ СОБЫТИЯ" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" FontSize="11"/>
+                    </Border>
+                    <TextBlock Text="Журнал взаимодействий: " Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" FontSize="12"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="{Binding LastActionText}" Foreground="{StaticResource TextPrimaryBrush}" 
+                           FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="6,0,10,0"/>
+
+                <Border Grid.Column="2" Background="#064E3B" CornerRadius="6" Padding="8,4" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Часть 2 активна" Foreground="{StaticResource SuccessBrush}" FontSize="11" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ============================================================================================== -->
+        <!-- 1.3.1.4. TreeView: Иерархическое дерево данных                                                  -->
+        <!-- ============================================================================================== -->
+        <Expander IsExpanded="True" Style="{StaticResource SectionExpanderStyle}" Padding="16">
+            <Expander.Header>
+                <Grid Margin="4,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#1E3A8A" CornerRadius="6" Width="36" Height="36" Margin="0,0,12,0">
+                        <TextBlock Text="🗂️" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="1.3.1.4. Иерархическое дерево данных (TreeView)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Многоуровневая структура проекта, HierarchicalDataTemplate, бейджи типов и выбор узлов" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <Border Grid.Column="2" Background="#1E1B4B" CornerRadius="12" Padding="8,3" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" VerticalAlignment="Center">
+                        <TextBlock Text="Каталог файлов" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+            </Expander.Header>
+
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock Text="Иерархическое дерево структуры проекта: Корневой проект, исходный код (.cs), разметка интерфейса (.xaml), стили и темы, ресурсы и ассеты (.png, .ico), конфигурация (.csproj, .json). Поддерживаются иконки, типизированные бейджи, сворачивание/разворачивание веток, выбор узлов и контекстное меню по правому клику."
+                           TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,12"/>
+
+                <!-- Панель управления деревом -->
+                <Grid Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="📂 Развернуть все" Click="ExpandAllNodes_Click" Padding="12,6" Margin="0,0,8,0"
+                                Background="#1E293B" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" Cursor="Hand"/>
+                        <Button Content="📁 Свернуть все" Click="CollapseAllNodes_Click" Padding="12,6" Margin="0,0,8,0"
+                                Background="#1E293B" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" Cursor="Hand"/>
+                    </StackPanel>
+
+                    <Border HorizontalAlignment="Right" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="10,5">
+                        <TextBlock Text="{Binding SelectedTreeItemText}" Foreground="{StaticResource InfoBrush}" FontSize="12" FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Сам TreeView -->
+                    <Border Grid.Column="0" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,10,0">
+                        <TreeView x:Name="MainTreeView" ItemsSource="{Binding ProjectNodes}" 
+                                  SelectedItemChanged="TreeView_SelectedItemChanged"
+                                  Background="Transparent" BorderThickness="0" MaxHeight="380"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <TreeView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="📂 Развернуть ветку" Click="TreeNodeExpand_Click"/>
+                                    <MenuItem Header="📁 Свернуть ветку" Click="TreeNodeCollapse_Click"/>
+                                    <Separator />
+                                    <MenuItem Header="📋 Копировать имя узла" Click="TreeNodeCopyName_Click"/>
+                                </ContextMenu>
+                            </TreeView.ContextMenu>
+                        </TreeView>
+                    </Border>
+
+                    <!-- Панель свойств и описания TreeView -->
+                    <Border Grid.Column="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="Свойства выбранного узла" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+                            
+                            <Border Background="#1E293B" CornerRadius="6" Padding="10" Margin="0,0,0,8" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="Текущий элемент:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                                    <TextBlock Text="{Binding SelectedTreeItemText}" Foreground="{StaticResource PrimaryBrush}" FontWeight="Bold" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="Особенности реализации TreeView в WPF:" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" Margin="0,6,0,6"/>
+                            <TextBlock Text="• HierarchicalDataTemplate: обеспечивает привязку дочерних коллекций (Children) любого уровня вложенности." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock Text="• Рекурсивное связывание: узлы поддерживают двустороннюю привязку IsExpanded и IsSelected." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock Text="• Контекстное меню (ПКМ): разворачивание, сворачивание ветки и копирование имени узла в буфер обмена." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock Text="• Стилизованные контейнеры: кастомные бейджи для каждого типа ресурса (C#, XAML, медиа, конфигурация)." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Expander>
+
+        <!-- ============================================================================================== -->
+        <!-- 1.3.1.5. DataGrid: Полноценная таблица данных                                                   -->
+        <!-- ============================================================================================== -->
+        <Expander IsExpanded="True" Style="{StaticResource SectionExpanderStyle}" Padding="16">
+            <Expander.Header>
+                <Grid Margin="4,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#083344" CornerRadius="6" Width="36" Height="36" Margin="0,0,12,0">
+                        <TextBlock Text="📊" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="1.3.1.5. Таблица данных (DataGrid)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Колонки (ID, имя, категория, статус, дата, чекбокс), сортировка, стили строк и палитра бейджей" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <Border Grid.Column="2" Background="#083344" CornerRadius="12" Padding="8,3" BorderBrush="{StaticResource InfoBrush}" BorderThickness="1" VerticalAlignment="Center">
+                        <TextBlock Text="Таблица данных" Foreground="{StaticResource InfoBrush}" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+            </Expander.Header>
+
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock Text="Полноценная таблица данных со стилизованными заголовками, чередующимися строками (AlternatingRowBackground), сортировкой по колонкам, выделением активной строки, цветными индикаторными бейджами статуса (Primary, Accent, Success, Error, Info, Warning), интерактивным чекбоксом активности и контекстным меню на каждой строке."
+                           TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,12"/>
+
+                <!-- Панель действий DataGrid -->
+                <Grid Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="➕ Добавить запись" Click="AddRow_Click" Padding="12,6" Margin="0,0,8,0"
+                                Background="#1E293B" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" Cursor="Hand"/>
+                        <Button Content="🔄 Сбросить к 8 строкам" Click="ResetRows_Click" Padding="12,6" Margin="0,0,8,0"
+                                Background="#1E293B" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" Cursor="Hand"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock Text="Записей в наборе: " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                        <TextBlock Text="{Binding DataItems.Count}" Foreground="{StaticResource PrimaryBrush}" FontWeight="Bold" FontSize="12" Margin="4,0,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Сама таблица DataGrid -->
+                <Border Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
+                    <DataGrid x:Name="DemoDataGrid"
+                              ItemsSource="{Binding DataItems}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#334155"
+                              Background="Transparent"
+                              RowBackground="#1E293B"
+                              AlternatingRowBackground="#162032"
+                              AlternationCount="2"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              MaxHeight="380"
+                              SelectionChanged="DataGrid_SelectionChanged"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="📋 Скопировать данные записи" Click="DataGridRowCopy_Click"/>
+                                <MenuItem Header="🔄 Переключить активность" Click="DataGridRowToggleActive_Click"/>
+                                <Separator />
+                                <MenuItem Header="🗑️ Удалить запись" Click="DataGridRowDelete_Click"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <!-- 1. ID -->
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="75" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 2. Наименование -->
+                            <DataGridTemplateColumn Header="Наименование компонента" Width="2.5*" IsReadOnly="True" SortMemberPath="Name">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="🔹" FontSize="11" Margin="0,0,6,0" Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 3. Категория -->
+                            <DataGridTemplateColumn Header="Категория" Width="1.4*" IsReadOnly="True" SortMemberPath="Category">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Category}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 4. Статус с цветным бейджем (все 5 цветов палитры + Warning) -->
+                            <DataGridTemplateColumn Header="Статус выполнения" Width="200" IsReadOnly="True" SortMemberPath="Status">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding BadgeBackground}" BorderBrush="{Binding BadgeBorder}" BorderThickness="1" CornerRadius="12" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="6" Height="6" Fill="{Binding BadgeBorder}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Status}" Foreground="{Binding BadgeForeground}" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 5. Дата -->
+                            <DataGridTextColumn Header="Дата и время" Binding="{Binding FormattedDate}" Width="150" IsReadOnly="True" SortMemberPath="Date">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                        <Setter Property="FontSize" Value="11"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- 6. Чекбокс активности -->
+                            <DataGridTemplateColumn Header="Активен" Width="85" SortMemberPath="IsActive">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <!-- Нижняя карточка с информацией о выбранной строке -->
+                <Border Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,10,0,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Инспектор строки: " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                            <TextBlock Text="{Binding SelectedDataGridItemText}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" FontSize="12" Margin="6,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Expander>
+
+        <!-- ============================================================================================== -->
+        <!-- 1.3.1.6. ProgressBar: Индикаторы выполнения                                                    -->
+        <!-- ============================================================================================== -->
+        <Expander IsExpanded="True" Style="{StaticResource SectionExpanderStyle}" Padding="16">
+            <Expander.Header>
+                <Grid Margin="4,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#064E3B" CornerRadius="6" Width="36" Height="36" Margin="0,0,12,0">
+                        <TextBlock Text="⏳" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="1.3.1.6. Индикаторы выполнения (ProgressBar)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Детерминированные со значением, IsIndeterminate и индикаторы во всех цветах темы" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <Border Grid.Column="2" Background="#064E3B" CornerRadius="12" Padding="8,3" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" VerticalAlignment="Center">
+                        <TextBlock Text="Индикаторы прогресса" Foreground="{StaticResource SuccessBrush}" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+            </Expander.Header>
+
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock Text="Демонстрация различных типов и состояний ProgressBar: интерактивный детерминированный индикатор с числовым отображением текущего процента, недетерминированный анимированный индикатор (IsIndeterminate=True) для фоновых задач, а также линейки детерминированных и анимированных индикаторов во всех цветах темы приложения (Primary, Accent, Success, Error, Info)."
+                           TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,14"/>
+
+                <!-- Блок 1: Детерминированный ProgressBar с управлением -->
+                <Border Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,14">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Детерминированный индикатор с числовым отображением значения" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                            </StackPanel>
+                            <Border HorizontalAlignment="Right" Background="#1E1B4B" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" CornerRadius="6" Padding="10,3">
+                                <TextBlock Text="{Binding ProgressValue, StringFormat='{}{0:F0}% завершено'}" Foreground="{StaticResource PrimaryBrush}" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Сам ProgressBar с наложенным процентом -->
+                        <Grid Margin="0,4,0,12">
+                            <ProgressBar Style="{StaticResource ModernFlatProgressBar}"
+                                         Minimum="0" Maximum="100" 
+                                         Value="{Binding ProgressValue}" 
+                                         Foreground="{StaticResource PrimaryBrush}"
+                                         Height="26"/>
+                            <TextBlock Text="{Binding ProgressValue, StringFormat='{}Выполнено: {0:F0}%'}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="White" FontWeight="Bold" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Панель управления значением: Слайдер и кнопки быстрых значений -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Слайдер значения:" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12"/>
+                            
+                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding ProgressValue, Mode=TwoWay}" 
+                                    VerticalAlignment="Center" Margin="0,0,14,0" Cursor="Hand"/>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <Button Content="0%" Click="SetProgress_0_Click" Padding="10,4" Margin="0,0,4,0" Background="#1E293B" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" Cursor="Hand"/>
+                                <Button Content="-10%" Click="SetProgress_Minus10_Click" Padding="10,4" Margin="0,0,4,0" Background="#1E293B" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" Cursor="Hand"/>
+                                <Button Content="+10%" Click="SetProgress_Plus10_Click" Padding="10,4" Margin="0,0,4,0" Background="#1E293B" Foreground="{StaticResource TextPrimaryBrush}" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" Cursor="Hand"/>
+                                <Button Content="100%" Click="SetProgress_100_Click" Padding="10,4" Background="#1E293B" Foreground="{StaticResource SuccessBrush}" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" Cursor="Hand"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Блок 2: Недетерминированный анимированный ProgressBar -->
+                <Border Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,14">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock Text="Недетерминированный анимированный индикатор (IsIndeterminate=&quot;True&quot;)" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                            <CheckBox HorizontalAlignment="Right" Content="Включить анимацию" IsChecked="{Binding IsIndeterminateRunning, Mode=TwoWay}" Foreground="{StaticResource TextSecondaryBrush}" Cursor="Hand"/>
+                        </Grid>
+                        <TextBlock Text="Используется для асинхронных операций с неизвестной длительностью (загрузка с удаленного сервера, фоновая индексация базы данных)." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,10"/>
+                        
+                        <ProgressBar Style="{StaticResource ModernIndeterminateProgressBar}"
+                                     IsIndeterminate="{Binding IsIndeterminateRunning}"
+                                     Foreground="{StaticResource AccentBrush}"
+                                     Height="18"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Блок 3: Индикаторы во всех цветовых темах приложения (детерминированные + анимированные) -->
+                <Border Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" Padding="16">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,14">
+                            <TextBlock Text="Индикаторы прогресса во всех цветах темы приложения (п. 1.2.2)" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                            <Border HorizontalAlignment="Right" Background="#1E293B" CornerRadius="6" Padding="8,2" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                                <TextBlock Text="Primary • Accent • Success • Error • Info" Foreground="{StaticResource TextMutedBrush}" FontSize="11" FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Левая колонка: Детерминированные индикаторы по цветам -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Детерминированные индикаторы (% заполнения):" Foreground="{StaticResource TextSecondaryBrush}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,10"/>
+
+                                <!-- Primary -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="42"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Primary (Основной):" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernFlatProgressBar}" Value="70" Foreground="{StaticResource PrimaryBrush}" Height="15"/>
+                                    <TextBlock Grid.Column="2" Text="70%" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"/>
+                                </Grid>
+
+                                <!-- Accent -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="42"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Accent (Акцентный):" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernFlatProgressBar}" Value="85" Foreground="{StaticResource AccentBrush}" Height="15"/>
+                                    <TextBlock Grid.Column="2" Text="85%" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"/>
+                                </Grid>
+
+                                <!-- Success -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="42"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Success (Успех):" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernFlatProgressBar}" Value="100" Foreground="{StaticResource SuccessBrush}" Height="15"/>
+                                    <TextBlock Grid.Column="2" Text="100%" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"/>
+                                </Grid>
+
+                                <!-- Error -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="42"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Error (Ошибка):" Foreground="{StaticResource ErrorBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernFlatProgressBar}" Value="45" Foreground="{StaticResource ErrorBrush}" Height="15"/>
+                                    <TextBlock Grid.Column="2" Text="45%" Foreground="{StaticResource ErrorBrush}" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"/>
+                                </Grid>
+
+                                <!-- Info -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="42"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Info (Информация):" Foreground="{StaticResource InfoBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernFlatProgressBar}" Value="60" Foreground="{StaticResource InfoBrush}" Height="15"/>
+                                    <TextBlock Grid.Column="2" Text="60%" Foreground="{StaticResource InfoBrush}" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Разделитель колонок -->
+                            <Rectangle Grid.Column="1" Width="1" Fill="{StaticResource BorderBrushDefault}" HorizontalAlignment="Center"/>
+
+                            <!-- Правая колонка: Недетерминированные индикаторы по цветам -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Недетерминированные анимированные индикаторы:" Foreground="{StaticResource TextSecondaryBrush}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,10"/>
+
+                                <!-- Primary Indeterminate -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Primary (Фон):" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernIndeterminateProgressBar}" IsIndeterminate="{Binding IsIndeterminateRunning}" Foreground="{StaticResource PrimaryBrush}" Height="15"/>
+                                </Grid>
+
+                                <!-- Accent Indeterminate -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Accent (Фон):" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernIndeterminateProgressBar}" IsIndeterminate="{Binding IsIndeterminateRunning}" Foreground="{StaticResource AccentBrush}" Height="15"/>
+                                </Grid>
+
+                                <!-- Success Indeterminate -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Success (Фон):" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernIndeterminateProgressBar}" IsIndeterminate="{Binding IsIndeterminateRunning}" Foreground="{StaticResource SuccessBrush}" Height="15"/>
+                                </Grid>
+
+                                <!-- Error Indeterminate -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Error (Фон):" Foreground="{StaticResource ErrorBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernIndeterminateProgressBar}" IsIndeterminate="{Binding IsIndeterminateRunning}" Foreground="{StaticResource ErrorBrush}" Height="15"/>
+                                </Grid>
+
+                                <!-- Info Indeterminate -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Info (Фон):" Foreground="{StaticResource InfoBrush}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                                    <ProgressBar Grid.Column="1" Style="{StaticResource ModernIndeterminateProgressBar}" IsIndeterminate="{Binding IsIndeterminateRunning}" Foreground="{StaticResource InfoBrush}" Height="15"/>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Expander>
+
+        <!-- ============================================================================================== -->
+        <!-- 1.3.1.8. Меню и контекстное меню (Menu & ContextMenu)                                          -->
+        <!-- ============================================================================================== -->
+        <Expander IsExpanded="True" Style="{StaticResource SectionExpanderStyle}" Padding="16">
+            <Expander.Header>
+                <Grid Margin="4,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="#451A03" CornerRadius="6" Width="36" Height="36" Margin="0,0,12,0">
+                        <TextBlock Text="📋" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="1.3.1.8. Главное меню и контекстное меню (Menu &amp; ContextMenu)" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Навигация, подменю, горячие клавиши, разделители и контекстные меню по правому клику" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <Border Grid.Column="2" Background="#451A03" CornerRadius="12" Padding="8,3" BorderBrush="#F59E0B" BorderThickness="1" VerticalAlignment="Center">
+                        <TextBlock Text="Меню и навигация" Foreground="#F59E0B" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+            </Expander.Header>
+
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock Text="Полноценное главное меню (Menu) с пунктами Файл, Правка, Вид, Справка, значками, подменю, разделителями (Separator) и горячими клавишами. А также демонстрационная интерактивная карточка с вызовом ContextMenu по правому клику мыши (копирование, редактирование, удаление)."
+                           TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,12"/>
+
+                <!-- 1. Главное меню (Menu) -->
+                <Border Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="8" Padding="4" Margin="0,0,0,14">
+                    <Menu Background="Transparent">
+                        <!-- Меню Файл -->
+                        <MenuItem Header="📁 Файл">
+                            <MenuItem Header="📄 Создать" InputGestureText="Ctrl+N" Click="MenuItem_Click"/>
+                            <MenuItem Header="📂 Открыть..." InputGestureText="Ctrl+O" Click="MenuItem_Click"/>
+                            <MenuItem Header="💾 Сохранить" InputGestureText="Ctrl+S" Click="MenuItem_Click"/>
+                            <MenuItem Header="💾 Сохранить как..." InputGestureText="Ctrl+Shift+S" Click="MenuItem_Click"/>
+                            <Separator />
+                            <MenuItem Header="🖨️ Экспорт в PDF..." InputGestureText="Ctrl+P" Click="MenuItem_Click"/>
+                            <Separator />
+                            <MenuItem Header="🚪 Выход" InputGestureText="Alt+F4" Click="MenuItem_Click"/>
+                        </MenuItem>
+
+                        <!-- Меню Правка -->
+                        <MenuItem Header="✏️ Правка">
+                            <MenuItem Header="↩️ Отменить" InputGestureText="Ctrl+Z" Click="MenuItem_Click"/>
+                            <MenuItem Header="↪️ Повторить" InputGestureText="Ctrl+Y" Click="MenuItem_Click"/>
+                            <Separator />
+                            <MenuItem Header="✂️ Вырезать" InputGestureText="Ctrl+X" Click="MenuItem_Click"/>
+                            <MenuItem Header="📋 Копировать" InputGestureText="Ctrl+C" Click="MenuItem_Click"/>
+                            <MenuItem Header="📥 Вставить" InputGestureText="Ctrl+V" Click="MenuItem_Click"/>
+                            <Separator />
+                            <MenuItem Header="☑️ Выбрать все" InputGestureText="Ctrl+A" Click="MenuItem_Click"/>
+                        </MenuItem>
+
+                        <!-- Меню Вид -->
+                        <MenuItem Header="👁️ Вид">
+                            <MenuItem Header="🔍 Масштаб">
+                                <MenuItem Header="75%" IsCheckable="True" Click="MenuItem_Click"/>
+                                <MenuItem Header="100% (По умолчанию)" IsCheckable="True" IsChecked="True" Click="MenuItem_Click"/>
+                                <MenuItem Header="125%" IsCheckable="True" Click="MenuItem_Click"/>
+                                <MenuItem Header="150%" IsCheckable="True" Click="MenuItem_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="🎨 Тема оформления">
+                                <MenuItem Header="Тёмная (Dark Slate)" IsCheckable="True" IsChecked="True" Click="MenuItem_Click"/>
+                                <MenuItem Header="Светлая (Light)" IsCheckable="True" Click="MenuItem_Click"/>
+                                <MenuItem Header="Контрастная" IsCheckable="True" Click="MenuItem_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="🌈 Цветовой акцент">
+                                <MenuItem Header="🔵 Primary (Синий)" Click="MenuItem_Click"/>
+                                <MenuItem Header="🟣 Accent (Фиолетовый)" Click="MenuItem_Click"/>
+                                <MenuItem Header="🟢 Success (Зеленый)" Click="MenuItem_Click"/>
+                                <MenuItem Header="🔴 Error (Красный)" Click="MenuItem_Click"/>
+                                <MenuItem Header="🌐 Info (Бирюзовый)" Click="MenuItem_Click"/>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="🖥️ Полноэкранный режим" InputGestureText="F11" Click="MenuItem_Click"/>
+                        </MenuItem>
+
+                        <!-- Меню Справка -->
+                        <MenuItem Header="❓ Справка">
+                            <MenuItem Header="📖 Руководство пользователя" InputGestureText="F1" Click="MenuItem_Click"/>
+                            <MenuItem Header="⌨️ Горячие клавиши" InputGestureText="Ctrl+K" Click="MenuItem_Click"/>
+                            <MenuItem Header="🌐 Документация WPF (.NET 8)" Click="MenuItem_Click"/>
+                            <Separator />
+                            <MenuItem Header="ℹ️ О программе WPF Lab 1" Click="MenuItem_Click"/>
+                        </MenuItem>
+                    </Menu>
+                </Border>
+
+                <!-- 2. Демонстрационная карточка для ContextMenu -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Интерактивная карточка элемента с контекстным меню -->
+                    <Border Grid.Column="0" Background="#1E293B" BorderBrush="{StaticResource PrimaryBrush}" 
+                            BorderThickness="1.5" CornerRadius="8" Padding="16" Margin="0,0,8,0"
+                            MouseRightButtonUp="Card_MouseRightButtonUp" Cursor="Hand">
+                        <!-- Само ContextMenu на карточке -->
+                        <Border.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="📋 Копировать запись" InputGestureText="Ctrl+C" Click="ContextMenuItem_Click"/>
+                                <MenuItem Header="✏️ Редактировать параметры" InputGestureText="F2" Click="ContextMenuItem_Click"/>
+                                <MenuItem Header="📑 Дублировать сущность" InputGestureText="Ctrl+D" Click="ContextMenuItem_Click"/>
+                                <Separator />
+                                <MenuItem Header="🔄 Обновить статус" InputGestureText="F5" Click="ContextMenuItem_Click"/>
+                                <Separator />
+                                <MenuItem Header="🗑️ Удалить запись" InputGestureText="Del" Click="ContextMenuItem_Click"/>
+                            </ContextMenu>
+                        </Border.ContextMenu>
+
+                        <StackPanel>
+                            <Grid Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📦" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Элемент каталога #NET-9021" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Border HorizontalAlignment="Right" Background="#064E3B" CornerRadius="4" Padding="6,2">
+                                    <TextBlock Text="Нажмите ПКМ" Foreground="{StaticResource SuccessBrush}" FontSize="10" FontWeight="Bold"/>
+                                </Border>
+                            </Grid>
+                            
+                            <TextBlock Text="Демонстрационная карточка объекта данных. Нажмите правой кнопкой мыши в любом месте этой области, чтобы открыть контекстное меню с операциями копирования, редактирования и удаления."
+                                       TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,0,0,10"/>
+
+                            <Border Background="#0F172A" CornerRadius="6" Padding="10,6" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                                <Grid>
+                                    <TextBlock Text="Размер: 1.4 МБ • Доступ: Полный" Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                                    <TextBlock HorizontalAlignment="Right" Text="ContextMenu подключено" Foreground="{StaticResource InfoBrush}" FontSize="11" FontWeight="SemiBold"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Вторая карточка с пояснением и возможностями контекстного меню -->
+                    <Border Grid.Column="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" 
+                            BorderThickness="1" CornerRadius="8" Padding="16" Margin="8,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="💡 Свойства ContextMenu в WPF:" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" Margin="0,0,0,8"/>
+                            <TextBlock Text="• Свойство FrameworkElement.ContextMenu позволяет привязать контекстное меню к любому элементу WPF разметки." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock Text="• Поддержка Separator для логического разделения групп операций (чтение / изменение / удаление)." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock Text="• InputGestureText: отображение сочетаний горячих клавиш (Ctrl+C, F2, Del)." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock Text="• Контекстные меню также встроены в строки DataGrid и узлы TreeView выше!" Foreground="{StaticResource InfoBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <TextBlock Text="• Клик по любому пункту фиксируется в верхнем журнале действий." Foreground="{StaticResource SuccessBrush}" FontSize="11" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Expander>
+
+    </StackPanel>
+</UserControl>

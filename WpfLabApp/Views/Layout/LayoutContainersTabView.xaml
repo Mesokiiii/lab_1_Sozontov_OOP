@@ -1,0 +1,998 @@
+<UserControl x:Class="WpfLabApp.Views.LayoutContainersTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="1800" d:DesignWidth="1100">
+
+    <UserControl.Resources>
+        <!-- Common Container Card Style -->
+        <Style x:Key="ContainerCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,24"/>
+        </Style>
+
+        <!-- Playground Viewport Frame -->
+        <Style x:Key="PlaygroundFrameStyle" TargetType="Border">
+            <Setter Property="Background" Value="#0B1120"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- Badge Style -->
+        <Style x:Key="BadgeBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Section Header Text -->
+        <Style x:Key="CardHeaderTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+
+        <!-- Theory Subtitle -->
+        <Style x:Key="TheorySubHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Margin" Value="0,10,0,3"/>
+        </Style>
+
+        <!-- Theory Body -->
+        <Style x:Key="TheoryBody" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="LineHeight" Value="18"/>
+        </Style>
+
+        <!-- Code Block -->
+        <Style x:Key="CodeBoxBorder" TargetType="Border">
+            <Setter Property="Background" Value="#090D16"/>
+            <Setter Property="BorderBrush" Value="#1E293B"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+
+        <Style x:Key="CodeText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas, Cascadia Code, Courier New"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Foreground" Value="#38BDF8"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Colored Rectangle Blocks inside Demos -->
+        <Style x:Key="DemoBlockBase" TargetType="Border">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#FFFFFF33"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- Nav Button Style -->
+        <Style x:Key="NavPillButton" TargetType="Button">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource PrimaryHoverBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,12,0">
+        <StackPanel Orientation="Vertical" Margin="4">
+
+            <!-- Intro Header & Quick Navigation -->
+            <Border Background="{StaticResource BgCardBrush}" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="1.4. Контейнеры компоновки (Layout Panels) в WPF" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Наглядное исследование 6 ключевых панелей компоновки: StackPanel, Grid, WrapPanel, DockPanel, Canvas и UniformGrid с использованием цветных блоков палитры темы приложения." 
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Feature Pills -->
+                    <WrapPanel Grid.Row="1" Margin="0,12,0,12">
+                        <Border Style="{StaticResource BadgeBorder}" Background="#1E1B4B" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" Margin="0,0,8,6">
+                            <TextBlock Text="⚡ Двухпроходная модель: Measure &amp; Arrange" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Style="{StaticResource BadgeBorder}" Background="#022C22" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" Margin="0,0,8,6">
+                            <TextBlock Text="🎨 Цвета темы: Primary, Accent, Success, Error, Info" Foreground="{StaticResource SuccessBrush}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Style="{StaticResource BadgeBorder}" Background="#172554" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" Margin="0,0,8,6">
+                            <TextBlock Text="📐 Относительное и абсолютное позиционирование" Foreground="{StaticResource PrimaryBrush}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Style="{StaticResource BadgeBorder}" Background="#3F1D1D" BorderBrush="{StaticResource ErrorBrush}" BorderThickness="1" Margin="0,0,8,6">
+                            <TextBlock Text="🎛️ Интерактивные переключатели и слайдеры" Foreground="{StaticResource ErrorBrush}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                    </WrapPanel>
+
+                    <!-- Quick Jump Navigation Buttons -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Быстрый переход:" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="12"/>
+                        <Button Content="1. StackPanel" Style="{StaticResource NavPillButton}" Click="NavStackPanel_Click"/>
+                        <Button Content="2. Grid" Style="{StaticResource NavPillButton}" Click="NavGrid_Click"/>
+                        <Button Content="3. WrapPanel" Style="{StaticResource NavPillButton}" Click="NavWrapPanel_Click"/>
+                        <Button Content="4. DockPanel" Style="{StaticResource NavPillButton}" Click="NavDockPanel_Click"/>
+                        <Button Content="5. Canvas" Style="{StaticResource NavPillButton}" Click="NavCanvas_Click"/>
+                        <Button Content="6. UniformGrid" Style="{StaticResource NavPillButton}" Click="NavUniformGrid_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ========================================================================= -->
+            <!-- 1. STACKPANEL -->
+            <!-- ========================================================================= -->
+            <Border x:Name="CardStackPanel" Style="{StaticResource ContainerCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#1E3A8A" CornerRadius="4" Padding="6,2" Margin="0,0,10,0">
+                                <TextBlock Text="01" Foreground="#93C5FD" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="StackPanel (Линейная компоновка)" Style="{StaticResource CardHeaderTitle}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource BadgeBorder}" Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                            <TextBlock Text="Orientation: Vertical / Horizontal" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Interactive Controls Toolbar -->
+                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <WrapPanel VerticalAlignment="Center">
+                            <TextBlock Text="Ориентация (Orientation):" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                            <RadioButton x:Name="RbStackVertical" Content="Вертикальная (Vertical)" IsChecked="True" GroupName="StackOrientation" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0" Checked="StackOrientation_Checked"/>
+                            <RadioButton x:Name="RbStackHorizontal" Content="Горизонтальная (Horizontal)" GroupName="StackOrientation" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0" Checked="StackOrientation_Checked"/>
+                            <CheckBox x:Name="CbStackFixedSizes" Content="Фиксировать размеры блоков" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Checked="StackFixedSizes_Toggle" Unchecked="StackFixedSizes_Toggle"/>
+                        </WrapPanel>
+                    </Border>
+
+                    <!-- Content: Demo Area + Theory -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="320"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="2*" MinWidth="260"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Visual Playground -->
+                        <Border Grid.Column="0" Style="{StaticResource PlaygroundFrameStyle}" MinHeight="260">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="DemoStackPanel" Orientation="Vertical">
+                                    <!-- Block 1: Primary -->
+                                    <Border x:Name="StackBlock1" Background="{StaticResource PrimaryBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Height="44" Padding="10,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Primary #3B82F6" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                                <TextBlock Text="Первый элемент (Top / Left)" Foreground="#DBEAFE" FontSize="10" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Index 0" Foreground="#DBEAFE" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <!-- Block 2: Accent -->
+                                    <Border x:Name="StackBlock2" Background="{StaticResource AccentBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Height="44" Padding="10,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Accent #8B5CF6" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                                <TextBlock Text="Второй элемент по очереди" Foreground="#EDE9FE" FontSize="10" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Index 1" Foreground="#EDE9FE" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <!-- Block 3: Success -->
+                                    <Border x:Name="StackBlock3" Background="{StaticResource SuccessBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Height="44" Padding="10,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Success #10B981" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                                <TextBlock Text="Третий элемент (Success State)" Foreground="#D1FAE5" FontSize="10" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Index 2" Foreground="#D1FAE5" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <!-- Block 4: Info -->
+                                    <Border x:Name="StackBlock4" Background="{StaticResource InfoBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Height="44" Padding="10,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Info #06B6D4" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                                <TextBlock Text="Четвертый элемент (Info State)" Foreground="#CFFAFE" FontSize="10" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Index 3" Foreground="#CFFAFE" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                    <!-- Block 5: Error -->
+                                    <Border x:Name="StackBlock5" Background="{StaticResource ErrorBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Height="44" Padding="10,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Error #EF4444" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                                <TextBlock Text="Пятый элемент (Error State)" Foreground="#FEE2E2" FontSize="10" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Index 4" Foreground="#FEE2E2" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- Right: Theoretical Description -->
+                        <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Принцип работы" Style="{StaticResource TheorySubHeader}" Margin="0,0,0,3"/>
+                                    <TextBlock Text="Последовательно выстраивает дочерние элементы вдоль одной оси (по вертикали или горизонтали) без переноса на новую строку." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Модель Measure &amp; Arrange" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="• Measure: контейнер передает дочерним элементам бесконечный размер (Infinity) по оси стека и доступную ширину/высоту по поперечной оси. Элементы запрашивают столько места, сколько им требуется.&#x0a;• Arrange: элементы последовательно размещаются один за другим. По поперечной оси элемент растягивается (Stretch), если не задано выравнивание." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Особенности и предостережения" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="Если размер элементов превышает размер контейнера, они просто обрезаются или выходят за границы, если нет ScrollViewer. Для списков рекомендуется VirtualizingStackPanel." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Пример XAML" Style="{StaticResource TheorySubHeader}"/>
+                                    <Border Style="{StaticResource CodeBoxBorder}">
+                                        <TextBlock Style="{StaticResource CodeText}" Text="&lt;StackPanel Orientation=&quot;Vertical&quot;&gt;&#x0a;    &lt;Border Background=&quot;{StaticResource PrimaryBrush}&quot; Height=&quot;40&quot;/&gt;&#x0a;    &lt;Border Background=&quot;{StaticResource AccentBrush}&quot; Height=&quot;40&quot;/&gt;&#x0a;&lt;/StackPanel&gt;"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ========================================================================= -->
+            <!-- 2. GRID -->
+            <!-- ========================================================================= -->
+            <Border x:Name="CardGrid" Style="{StaticResource ContainerCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#581C87" CornerRadius="4" Padding="6,2" Margin="0,0,10,0">
+                                <TextBlock Text="02" Foreground="#D8B4FE" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="Grid (Табличная сетка)" Style="{StaticResource CardHeaderTitle}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource BadgeBorder}" Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                            <TextBlock Text="Auto, *, Absolute | RowSpan &amp; ColumnSpan" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Interactive Controls Toolbar -->
+                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <WrapPanel VerticalAlignment="Center">
+                            <TextBlock Text="Настройки сетки:" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                            <CheckBox x:Name="CbShowGridLines" Content="Показать линии сетки (ShowGridLines)" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,20,0" Checked="GridLines_Toggle" Unchecked="GridLines_Toggle"/>
+                            <TextBlock Text="Типы размеров: Auto (по содержимому), * (пропорционально), px (абсолютно)" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" FontSize="12"/>
+                        </WrapPanel>
+                    </Border>
+
+                    <!-- Content: Demo Area + Theory -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="320"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="2*" MinWidth="260"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Visual Playground -->
+                        <Border Grid.Column="0" Style="{StaticResource PlaygroundFrameStyle}" Height="340">
+                            <!-- 3 Rows x 3 Columns Demo Grid -->
+                            <Grid x:Name="DemoGrid" ShowGridLines="False">
+                                <Grid.RowDefinitions>
+                                    <!-- Row 0: Auto -->
+                                    <RowDefinition Height="Auto"/>
+                                    <!-- Row 1: 1* (Star) -->
+                                    <RowDefinition Height="1*"/>
+                                    <!-- Row 2: Fixed 65px -->
+                                    <RowDefinition Height="65"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <!-- Col 0: Fixed 110px -->
+                                    <ColumnDefinition Width="110"/>
+                                    <!-- Col 1: 2* (Star) -->
+                                    <ColumnDefinition Width="2*"/>
+                                    <!-- Col 2: 1* (Star) -->
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Cell (0,0): Fixed 110 x Auto -->
+                                <Border Grid.Row="0" Grid.Column="0" Background="#1E293B" BorderBrush="#475569" BorderThickness="1" Margin="2" Padding="6" CornerRadius="4">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="[0, 0]" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock Text="W: 110px&#x0a;H: Auto" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Cell (0, 1-2): ColumnSpan="2" -> Primary Color -->
+                                <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Background="{StaticResource PrimaryBrush}" Style="{StaticResource DemoBlockBase}" Margin="2" Padding="8">
+                                    <Grid>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="ColumnSpan=&quot;2&quot; • Объединение двух колонок (2* + 1*)" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                            <TextBlock Text="Row 0 (Auto) | Column 1 + Column 2 [Primary Color]" Foreground="#DBEAFE" FontSize="11"/>
+                                        </StackPanel>
+                                        <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="#1E3A8A" CornerRadius="4" Padding="6,2">
+                                            <TextBlock Text="ColumnSpan=2" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Cell (1-2, 0): RowSpan="2" -> Accent Color -->
+                                <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Background="{StaticResource AccentBrush}" Style="{StaticResource DemoBlockBase}" Margin="2" Padding="8">
+                                    <Grid>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="RowSpan=&quot;2&quot;" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                            <TextBlock Text="Сайдбар&#x0a;W: 110px&#x0a;Row 1 (1*) +&#x0a;Row 2 (65px)&#x0a;[Accent]" Foreground="#EDE9FE" FontSize="11" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Cell (1, 1): 2* x 1* -> Success Color -->
+                                <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource SuccessBrush}" Style="{StaticResource DemoBlockBase}" Margin="2" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Основной контент [Row 1, Col 1]" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                        <TextBlock Text="Ширина: 2* (вдвое шире колонки 2)&#x0a;Высота: 1* (занимает всё свободное пространство)" Foreground="#D1FAE5" FontSize="11" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Cell (1, 2): 1* x 1* -> Info Color -->
+                                <Border Grid.Row="1" Grid.Column="2" Background="{StaticResource InfoBrush}" Style="{StaticResource DemoBlockBase}" Margin="2" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Инфопанель [1, 2]" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock Text="W: 1*&#x0a;H: 1*&#x0a;[Info Color]" Foreground="#CFFAFE" FontSize="10" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Cell (2, 1-2): ColumnSpan="2" -> Error Color Footer -->
+                                <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Background="{StaticResource ErrorBrush}" Style="{StaticResource DemoBlockBase}" Margin="2" Padding="8">
+                                    <Grid>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Футер [Row 2: Fixed H=65px, ColumnSpan=&quot;2&quot;]" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                            <TextBlock Text="Фиксированная высота 65px объединяет Col 1 и Col 2 [Error Color]" Foreground="#FEE2E2" FontSize="11"/>
+                                        </StackPanel>
+                                        <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="#991B1B" CornerRadius="4" Padding="6,2">
+                                            <TextBlock Text="Fixed H: 65px" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Right: Theoretical Description -->
+                        <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Принцип работы" Style="{StaticResource TheorySubHeader}" Margin="0,0,0,3"/>
+                                    <TextBlock Text="Разделяет пространство на строки (RowDefinitions) и столбцы (ColumnDefinitions). Самый мощный и универсальный контейнер WPF." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Типы размеров ячеек" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="1. Абсолютные (напр. Width=&quot;110&quot;): фиксированный размер в пикселях (DIP).&#x0a;2. Auto: вычисляется точно по максимальному требуемому размеру содержимого ячеек.&#x0a;3. Звездные (1*, 2*): распределяют оставшееся свободное пространство пропорционально весам (напр. 2* получает в 2 раза больше места, чем 1*)." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Модель Measure &amp; Arrange" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="• Measure: 1) измеряются фиксированные и Auto ячейки; 2) оставшееся пространство делится между Star-ячейками; 3) вычисляется суммарный DesiredSize.&#x0a;• Arrange: дочерние элементы позиционируются в пересечении строк и колонок с учетом ColumnSpan и RowSpan." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Пример XAML" Style="{StaticResource TheorySubHeader}"/>
+                                    <Border Style="{StaticResource CodeBoxBorder}">
+                                        <TextBlock Style="{StaticResource CodeText}" Text="&lt;Grid&gt;&#x0a;  &lt;Grid.RowDefinitions&gt;&#x0a;    &lt;RowDefinition Height=&quot;Auto&quot;/&gt;&#x0a;    &lt;RowDefinition Height=&quot;*&quot;/&gt;&#x0a;  &lt;/Grid.RowDefinitions&gt;&#x0a;  &lt;Border Grid.Row=&quot;0&quot; Grid.ColumnSpan=&quot;2&quot;/&gt;&#x0a;&lt;/Grid&gt;"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ========================================================================= -->
+            <!-- 3. WRAPPANEL -->
+            <!-- ========================================================================= -->
+            <Border x:Name="CardWrapPanel" Style="{StaticResource ContainerCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#065F46" CornerRadius="4" Padding="6,2" Margin="0,0,10,0">
+                                <TextBlock Text="03" Foreground="#6EE7B7" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="WrapPanel (Перенос элементов)" Style="{StaticResource CardHeaderTitle}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource BadgeBorder}" Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                            <TextBlock Text="Автоматический перенос строк / колонок" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Interactive Controls Toolbar -->
+                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="220"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Ширина контейнера:" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Slider Grid.Column="1" x:Name="WrapWidthSlider" Minimum="200" Maximum="620" Value="420" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding ElementName=WrapWidthSlider, Path=Value, StringFormat={}{0:0} px}" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,20,0" Width="55"/>
+
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <TextBlock Text="Ориентация:" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <RadioButton x:Name="RbWrapHorizontal" Content="Горизонтальная" IsChecked="True" GroupName="WrapOrient" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0" VerticalAlignment="Center" Checked="WrapOrientation_Checked"/>
+                                <RadioButton x:Name="RbWrapVertical" Content="Вертикальная" GroupName="WrapOrient" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Checked="WrapOrientation_Checked"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Content: Demo Area + Theory -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="320"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="2*" MinWidth="260"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Visual Playground with dynamically sized border -->
+                        <Border Grid.Column="0" Style="{StaticResource PlaygroundFrameStyle}" MinHeight="260">
+                            <StackPanel VerticalAlignment="Top">
+                                <TextBlock Text="Потяните слайдер выше, чтобы изменить ширину рамки и наблюдать живой перенос блоков:" Foreground="{StaticResource TextMutedBrush}" FontSize="11" Margin="0,0,0,8"/>
+                                
+                                <!-- Container whose width is bound to Slider -->
+                                <Border x:Name="WrapContainerBorder" Background="#162032" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1.5" CornerRadius="6" Padding="6" HorizontalAlignment="Left"
+                                        Width="{Binding ElementName=WrapWidthSlider, Path=Value}" MinHeight="180">
+                                    <WrapPanel x:Name="DemoWrapPanel" Orientation="Horizontal">
+                                        <!-- Item 1 Primary -->
+                                        <Border Width="110" Height="50" Background="{StaticResource PrimaryBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="1. Primary" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="110 x 50 px" Foreground="#DBEAFE" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Item 2 Accent -->
+                                        <Border Width="120" Height="50" Background="{StaticResource AccentBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="2. Accent" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="120 x 50 px" Foreground="#EDE9FE" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Item 3 Success -->
+                                        <Border Width="95" Height="50" Background="{StaticResource SuccessBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="3. Success" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="95 x 50 px" Foreground="#D1FAE5" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Item 4 Info -->
+                                        <Border Width="115" Height="50" Background="{StaticResource InfoBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="4. Info" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="115 x 50 px" Foreground="#CFFAFE" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Item 5 Error -->
+                                        <Border Width="105" Height="50" Background="{StaticResource ErrorBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="5. Error" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="105 x 50 px" Foreground="#FEE2E2" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Item 6 Primary Light -->
+                                        <Border Width="130" Height="50" Background="{StaticResource PrimaryHoverBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="6. PrimaryDark" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="130 x 50 px" Foreground="#BFDBFE" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Item 7 Accent Light -->
+                                        <Border Width="100" Height="50" Background="{StaticResource AccentHoverBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="7. AccentDark" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="100 x 50 px" Foreground="#DDD6FE" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Item 8 Success Light -->
+                                        <Border Width="110" Height="50" Background="{StaticResource SuccessHoverBrush}" Style="{StaticResource DemoBlockBase}" Margin="4" Padding="6">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="8. SuccessDark" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                                <TextBlock Text="110 x 50 px" Foreground="#A7F3D0" FontSize="9"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </WrapPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Right: Theoretical Description -->
+                        <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Принцип работы" Style="{StaticResource TheorySubHeader}" Margin="0,0,0,3"/>
+                                    <TextBlock Text="Последовательно выстраивает элементы в строку. Как только очередному элементу перестает хватать доступной ширины, он переносится на следующую строку (или колонку при Orientation=&quot;Vertical&quot;)." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Модель Measure &amp; Arrange" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="• Measure: элементы запрашивают свой DesiredSize. Контейнер отслеживает накопленную длину в текущей строке. При превышении availableSize.Width фиксируется высота текущей строки и начинается новая.&#x0a;• Arrange: элементы расставляются по строкам, выравниваясь по верхнему или левому краю." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Свойства ItemWidth и ItemHeight" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="Если задать ItemWidth/ItemHeight, WrapPanel принудительно выделит одинаковые размеры всем ячейкам, превращаясь в равномерную ленту элементов (например, для фотогалерей или каталогов товаров)." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Пример XAML" Style="{StaticResource TheorySubHeader}"/>
+                                    <Border Style="{StaticResource CodeBoxBorder}">
+                                        <TextBlock Style="{StaticResource CodeText}" Text="&lt;WrapPanel Orientation=&quot;Horizontal&quot;&gt;&#x0a;  &lt;Border Width=&quot;110&quot; Height=&quot;50&quot; .../&gt;&#x0a;  &lt;Border Width=&quot;120&quot; Height=&quot;50&quot; .../&gt;&#x0a;&lt;/WrapPanel&gt;"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ========================================================================= -->
+            <!-- 4. DOCKPANEL -->
+            <!-- ========================================================================= -->
+            <Border x:Name="CardDockPanel" Style="{StaticResource ContainerCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#155E75" CornerRadius="4" Padding="6,2" Margin="0,0,10,0">
+                                <TextBlock Text="04" Foreground="#67E8F9" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="DockPanel (Стыковочная панель)" Style="{StaticResource CardHeaderTitle}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource BadgeBorder}" Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                            <TextBlock Text="Dock.Top, Bottom, Left, Right &amp; LastChildFill" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Interactive Controls Toolbar -->
+                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <WrapPanel VerticalAlignment="Center">
+                            <TextBlock Text="Управление свойством LastChildFill:" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                            <CheckBox x:Name="CbLastChildFill" Content="LastChildFill=&quot;True&quot; (Последний элемент заполняет весь остаток пространства)" IsChecked="True" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,20,0" Checked="LastChildFill_Toggle" Unchecked="LastChildFill_Toggle"/>
+                        </WrapPanel>
+                    </Border>
+
+                    <!-- Content: Demo Area + Theory -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="320"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="2*" MinWidth="260"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Visual Playground -->
+                        <Border Grid.Column="0" Style="{StaticResource PlaygroundFrameStyle}" Height="320">
+                            <!-- DockPanel Demonstration -->
+                            <DockPanel x:Name="DemoDockPanel" LastChildFill="True">
+                                <!-- Top Dock: Primary -->
+                                <Border DockPanel.Dock="Top" Height="44" Background="{StaticResource PrimaryBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="10,0">
+                                    <Grid>
+                                        <TextBlock Text="DockPanel.Dock=&quot;Top&quot; • Верхнее меню / Заголовок" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="#1E3A8A" CornerRadius="4" Padding="6,2">
+                                            <TextBlock Text="Top (Height: 44)" Foreground="White" FontSize="10"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Bottom Dock: Error -->
+                                <Border DockPanel.Dock="Bottom" Height="38" Background="{StaticResource ErrorBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="10,0">
+                                    <Grid>
+                                        <TextBlock Text="DockPanel.Dock=&quot;Bottom&quot; • Строка состояния (Status Bar)" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="#991B1B" CornerRadius="4" Padding="6,2">
+                                            <TextBlock Text="Bottom (Height: 38)" Foreground="White" FontSize="10"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Left Dock: Accent -->
+                                <Border DockPanel.Dock="Left" Width="110" Background="{StaticResource AccentBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Dock.Left" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                        <TextBlock Text="Навигация / Меню слева&#x0a;Width: 110" Foreground="#EDE9FE" FontSize="10" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Right Dock: Info -->
+                                <Border DockPanel.Dock="Right" Width="115" Background="{StaticResource InfoBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Dock.Right" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                        <TextBlock Text="Свойства / Сайдбар справа&#x0a;Width: 115" Foreground="#CFFAFE" FontSize="10" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Last Child (Center): Success Color -->
+                                <Border x:Name="DockCenterChild" Background="{StaticResource SuccessBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="12">
+                                    <Grid>
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock Text="Last Child: Центр приложения" Foreground="White" FontWeight="Bold" FontSize="13" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="При LastChildFill=&quot;True&quot; автоматически заполняет всё оставшееся свободное пространство окна!" Foreground="#D1FAE5" FontSize="11" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#065F46" CornerRadius="4" Padding="6,2">
+                                            <TextBlock Text="Fill: Center" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- Right: Theoretical Description -->
+                        <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Принцип работы" Style="{StaticResource TheorySubHeader}" Margin="0,0,0,3"/>
+                                    <TextBlock Text="Пристыковывает дочерние элементы к сторонам света: Top, Bottom, Left, Right через прикрепленное свойство DockPanel.Dock." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Значение очередности (Order of Docking)" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="Порядок объявления элементов в XAML критичен: каждый следующий элемент стыкуется к оставшейся свободной области. Первый Dock.Top займет всю ширину сверху, а следующий Dock.Left займет высоту между Top и Bottom." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Модель Measure &amp; Arrange" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="• Measure: доступный прямоугольник уменьшается на величину размера каждого пристыкованного элемента.&#x0a;• Arrange: элементы закрепляются вдоль соответствующих границ, а последний элемент при LastChildFill=&quot;True&quot; занимает всю оставшуюся центральную площадь." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Пример XAML" Style="{StaticResource TheorySubHeader}"/>
+                                    <Border Style="{StaticResource CodeBoxBorder}">
+                                        <TextBlock Style="{StaticResource CodeText}" Text="&lt;DockPanel LastChildFill=&quot;True&quot;&gt;&#x0a;  &lt;Border DockPanel.Dock=&quot;Top&quot; Height=&quot;40&quot;/&gt;&#x0a;  &lt;Border DockPanel.Dock=&quot;Left&quot; Width=&quot;100&quot;/&gt;&#x0a;  &lt;Border Background=&quot;{StaticResource SuccessBrush}&quot;/&gt;&#x0a;&lt;/DockPanel&gt;"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ========================================================================= -->
+            <!-- 5. CANVAS -->
+            <!-- ========================================================================= -->
+            <Border x:Name="CardCanvas" Style="{StaticResource ContainerCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#831843" CornerRadius="4" Padding="6,2" Margin="0,0,10,0">
+                                <TextBlock Text="05" Foreground="#F472B6" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="Canvas (Абсолютное позиционирование)" Style="{StaticResource CardHeaderTitle}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource BadgeBorder}" Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                            <TextBlock Text="Canvas.Left, Top, Right, Bottom &amp; Panel.ZIndex" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Interactive Controls Toolbar -->
+                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- X Slider -->
+                            <TextBlock Grid.Column="0" Text="Позиция X (Left):" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <Slider Grid.Column="1" x:Name="CanvasXSlider" Minimum="10" Maximum="320" Value="140" VerticalAlignment="Center" ValueChanged="CanvasSliders_ValueChanged"/>
+                            <!-- Y Slider -->
+                            <TextBlock Grid.Column="2" Text="Позиция Y (Top):" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,8,0"/>
+                            <Slider Grid.Column="3" x:Name="CanvasYSlider" Minimum="10" Maximum="160" Value="60" VerticalAlignment="Center" ValueChanged="CanvasSliders_ValueChanged"/>
+
+                            <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock Text="Координаты блока: X=" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                                <TextBlock Text="{Binding ElementName=CanvasXSlider, Path=Value, StringFormat={}{0:0}}" Foreground="{StaticResource InfoBrush}" FontWeight="Bold" FontSize="11"/>
+                                <TextBlock Text=" px, Y=" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                                <TextBlock Text="{Binding ElementName=CanvasYSlider, Path=Value, StringFormat={}{0:0}}" Foreground="{StaticResource InfoBrush}" FontWeight="Bold" FontSize="11"/>
+                                <TextBlock Text=" px" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Content: Demo Area + Theory -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="320"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="2*" MinWidth="260"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Visual Playground -->
+                        <Border Grid.Column="0" Style="{StaticResource PlaygroundFrameStyle}" Height="300" ClipToBounds="True">
+                            <Canvas x:Name="DemoCanvas" ClipToBounds="True">
+                                <!-- Background Coordinate Grid Hint -->
+                                <TextBlock Text="Координатная плоскость: начало отсчета (0,0) в левом верхнем углу" Canvas.Left="10" Canvas.Top="6" Foreground="#475569" FontSize="10"/>
+
+                                <!-- Block 1: Top-Left (Primary) -->
+                                <Border Canvas.Left="15" Canvas.Top="24" Width="130" Height="50" Background="{StaticResource PrimaryBrush}" Style="{StaticResource DemoBlockBase}" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Canvas.Left=&quot;15&quot;" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock Text="Canvas.Top=&quot;24&quot;" Foreground="#DBEAFE" FontSize="10"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Block 2: Top-Right (Info) -->
+                                <Border Canvas.Right="15" Canvas.Top="24" Width="130" Height="50" Background="{StaticResource InfoBrush}" Style="{StaticResource DemoBlockBase}" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Canvas.Right=&quot;15&quot;" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock Text="Canvas.Top=&quot;24&quot;" Foreground="#CFFAFE" FontSize="10"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Block 3: Bottom-Left (Success) -->
+                                <Border Canvas.Left="15" Canvas.Bottom="15" Width="130" Height="50" Background="{StaticResource SuccessBrush}" Style="{StaticResource DemoBlockBase}" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Canvas.Left=&quot;15&quot;" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock Text="Canvas.Bottom=&quot;15&quot;" Foreground="#D1FAE5" FontSize="10"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Block 4: Bottom-Right (Error) -->
+                                <Border Canvas.Right="15" Canvas.Bottom="15" Width="130" Height="50" Background="{StaticResource ErrorBrush}" Style="{StaticResource DemoBlockBase}" Padding="8">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Canvas.Right=&quot;15&quot;" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock Text="Canvas.Bottom=&quot;15&quot;" Foreground="#FEE2E2" FontSize="10"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Block 5: Interactive Floating Accent Block with high ZIndex -->
+                                <Border x:Name="InteractiveCanvasBlock" Canvas.Left="140" Canvas.Top="60" Panel.ZIndex="10" Width="150" Height="65" Background="{StaticResource AccentBrush}" CornerRadius="8" BorderThickness="2" BorderBrush="#FFFFFF" Padding="8">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="🎮 Управляемый блок" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="ZIndex=&quot;10&quot; (Поверх других)" Foreground="#EDE9FE" FontSize="10" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Двигайте слайдеры выше!" Foreground="#FDF2F8" FontSize="9" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </Canvas>
+                        </Border>
+
+                        <!-- Right: Theoretical Description -->
+                        <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Принцип работы" Style="{StaticResource TheorySubHeader}" Margin="0,0,0,3"/>
+                                    <TextBlock Text="Предоставляет явное позиционирование элементов по координатам (X, Y) через прикрепленные свойства: Canvas.Left, Top, Right, Bottom." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Модель Measure &amp; Arrange" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="• Measure: Canvas возвращает размер (0,0) в качестве своего DesiredSize, так как он не навязывает автоматическую подгонку под дочерние элементы!&#x0a;• Arrange: дочерним элементам выделяется именно тот размер, который они запросили, и они помещаются строго по указанным координатам без автоматического переноса." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Свойство Panel.ZIndex" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="Определяет порядок наложения слоев по оси Z. Элемент с большим значением ZIndex перекрывает элементы с меньшим значением." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Когда использовать" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="Для векторных редакторов, диаграмм, игр, графических сцен или наложения плавающих бейджей. Не подходит для адаптивных интерфейсов форм." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Пример XAML" Style="{StaticResource TheorySubHeader}"/>
+                                    <Border Style="{StaticResource CodeBoxBorder}">
+                                        <TextBlock Style="{StaticResource CodeText}" Text="&lt;Canvas&gt;&#x0a;  &lt;Border Canvas.Left=&quot;20&quot; Canvas.Top=&quot;30&quot; Panel.ZIndex=&quot;2&quot; .../&gt;&#x0a;&lt;/Canvas&gt;"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ========================================================================= -->
+            <!-- 6. UNIFORMGRID -->
+            <!-- ========================================================================= -->
+            <Border x:Name="CardUniformGrid" Style="{StaticResource ContainerCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#1E1B4B" CornerRadius="4" Padding="6,2" Margin="0,0,10,0">
+                                <TextBlock Text="06" Foreground="#C7D2FE" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="UniformGrid (Равномерная сетка)" Style="{StaticResource CardHeaderTitle}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource BadgeBorder}" Background="#1E293B" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1">
+                            <TextBlock Text="Одинаковый размер всех ячеек | Columns &amp; Rows" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Interactive Controls Toolbar -->
+                    <Border Grid.Row="1" Background="#0F172A" BorderBrush="{StaticResource BorderBrushDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,14">
+                        <WrapPanel VerticalAlignment="Center">
+                            <TextBlock Text="Количество столбцов (Columns):" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                            <RadioButton x:Name="RbUniCols2" Content="2 колонки" GroupName="UniCols" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0" Checked="UniformGridCols_Checked"/>
+                            <RadioButton x:Name="RbUniCols3" Content="3 колонки" IsChecked="True" GroupName="UniCols" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0" Checked="UniformGridCols_Checked"/>
+                            <RadioButton x:Name="RbUniCols4" Content="4 колонки" GroupName="UniCols" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0" Checked="UniformGridCols_Checked"/>
+                            <RadioButton x:Name="RbUniCols6" Content="6 колонок" GroupName="UniCols" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0" Checked="UniformGridCols_Checked"/>
+                        </WrapPanel>
+                    </Border>
+
+                    <!-- Content: Demo Area + Theory -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="320"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="2*" MinWidth="260"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Visual Playground -->
+                        <Border Grid.Column="0" Style="{StaticResource PlaygroundFrameStyle}" Height="300">
+                            <!-- UniformGrid with 3 columns by default -->
+                            <UniformGrid x:Name="DemoUniformGrid" Columns="3">
+                                <!-- Cell 1 Primary -->
+                                <Border Background="{StaticResource PrimaryBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="Cell 01" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Primary #3B82F6" Foreground="#DBEAFE" FontSize="10" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <!-- Cell 2 Accent -->
+                                <Border Background="{StaticResource AccentBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="Cell 02" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Accent #8B5CF6" Foreground="#EDE9FE" FontSize="10" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <!-- Cell 3 Success -->
+                                <Border Background="{StaticResource SuccessBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="Cell 03" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Success #10B981" Foreground="#D1FAE5" FontSize="10" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <!-- Cell 4 Info -->
+                                <Border Background="{StaticResource InfoBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="Cell 04" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Info #06B6D4" Foreground="#CFFAFE" FontSize="10" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <!-- Cell 5 Error -->
+                                <Border Background="{StaticResource ErrorBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="Cell 05" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Error #EF4444" Foreground="#FEE2E2" FontSize="10" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <!-- Cell 6 Primary Hover -->
+                                <Border Background="{StaticResource PrimaryHoverBrush}" Style="{StaticResource DemoBlockBase}" Margin="3" Padding="8">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="Cell 06" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Primary Dark" Foreground="#BFDBFE" FontSize="10" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                        </Border>
+
+                        <!-- Right: Theoretical Description -->
+                        <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Принцип работы" Style="{StaticResource TheorySubHeader}" Margin="0,0,0,3"/>
+                                    <TextBlock Text="Создает сетку, в которой абсолютно все ячейки имеют строго одинаковую ширину и одинаковую высоту, независимо от содержимого." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Отличие от стандартного Grid" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="Не требует явного объявления RowDefinitions и ColumnDefinitions. Достаточно указать Columns=&quot;N&quot; или Rows=&quot;M&quot;, и ячейки распределятся автоматически." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Модель Measure &amp; Arrange" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="• Measure: UniformGrid опрашивает всех детей, находит максимальную требуемую ширину и высоту среди всех элементов, и умножает их на число строк/колонок.&#x0a;• Arrange: каждому ребенку выделяется строго равная часть общего пространства: TotalWidth / Columns и TotalHeight / Rows." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Сценарии применения" Style="{StaticResource TheorySubHeader}"/>
+                                    <TextBlock Text="Клавиатуры калькуляторов, шахматные доски, кнопочные панели инструментов, календарные сетки (календарь по дням недели), витрины товаров одинакового размера." Style="{StaticResource TheoryBody}"/>
+
+                                    <TextBlock Text="Пример XAML" Style="{StaticResource TheorySubHeader}"/>
+                                    <Border Style="{StaticResource CodeBoxBorder}">
+                                        <TextBlock Style="{StaticResource CodeText}" Text="&lt;UniformGrid Columns=&quot;3&quot;&gt;&#x0a;  &lt;Button Content=&quot;1&quot;/&gt;&#x0a;  &lt;Button Content=&quot;2&quot;/&gt;&#x0a;  &lt;Button Content=&quot;3&quot;/&gt;&#x0a;&lt;/UniformGrid&gt;"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
